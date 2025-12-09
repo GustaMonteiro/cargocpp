@@ -8,7 +8,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED true)
 set(CMAKE_EXPORT_COMPILE_COMMANDS true)
 
 include_directories(${{CMAKE_SOURCE_DIR}}/include)
-file(GLOB_RECURSE src_files ${{CMAKE_SOURCE_DIR}}/src/*.cpp)
+file(GLOB_RECURSE src_files CONFIGURE_DEPENDS ${{CMAKE_SOURCE_DIR}}/src/*.cpp)
 
 add_executable(${{PROJECT_NAME}} ${{src_files}})
 
