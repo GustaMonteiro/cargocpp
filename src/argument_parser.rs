@@ -41,6 +41,10 @@ pub enum Commands {
         /// Cleans the build artifacts before building
         #[arg(long)]
         clean: bool,
+
+        /// Build in release mode
+        #[arg(short, long)]
+        release: bool,
     },
 
     /// Clean all build artifacts
@@ -51,6 +55,14 @@ pub enum Commands {
         /// Don't show build output (quiet mode)
         #[arg(short, long)]
         quiet: bool,
+
+        /// Run in release mode
+        #[arg(short, long)]
+        release: bool,
+
+        /// Arguments to pass to the executable
+        #[arg(trailing_var_arg = true, allow_hyphen_values = true)]
+        args: Vec<String>,
     },
 
     /// Add one or more dependencies to the project

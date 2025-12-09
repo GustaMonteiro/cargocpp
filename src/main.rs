@@ -13,14 +13,14 @@ fn main() {
         Commands::New { name, std } => {
             routines::new(name, std);
         }
-        Commands::Build { clean } => {
-            routines::build(clean);
+        Commands::Build { clean, release } => {
+            routines::build(clean, release);
         }
         Commands::Clean => {
             routines::clean();
         }
-        Commands::Run { quiet } => {
-            routines::run(quiet);
+        Commands::Run { quiet, release, args } => {
+            routines::run(quiet, release, args);
         }
         Commands::Add { names } => {
             routines::add(names);
