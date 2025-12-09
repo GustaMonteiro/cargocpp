@@ -1,5 +1,5 @@
-use std::process::exit;
 use std::path::PathBuf;
+use std::process::exit;
 
 use crate::files::*;
 
@@ -7,11 +7,12 @@ pub fn new(name: &String, std: &String) {
     let base_path = PathBuf::from(name);
 
     if std::fs::exists(&base_path).unwrap() {
-        println!("There is already a directory called {}", base_path.display());
+        println!(
+            "There is already a directory called {}",
+            base_path.display()
+        );
         exit(-1);
     }
-
-    println!("Creating {} project in C++ {}", base_path.display(), std);
 
     if let Err(e) = std::fs::create_dir(&base_path) {
         println!("Something went wrong during directory creation: {}", e);
@@ -27,15 +28,36 @@ pub fn new(name: &String, std: &String) {
 }
 
 pub fn build(clean: &bool) {
+    if !std::fs::exists("CMakeLists.txt").unwrap() {
+        println!("No CMake file found in the current directory");
+        exit(-1);
+    }
+
     if *clean {
         crate::routines::clean();
     }
 
-    println!("Building project...");
+    if !std::fs::exists("build").unwrap() {
+        std::fs::create_dir("build").expect("Error while creating build directory");
+        std::process::Command::new("cmake")
+            .args(["-B", "build", "-S", "."])
+            .status()
+            .expect("Something went wrong when configuring cmake project");
+    }
+
+    std::process::Command::new("cmake")
+        .args(["--build", "build"])
+        .status()
+        .expect("Something went wrong when build cmake project");
 }
 
 pub fn clean() {
-    println!("Cleaning project...");
+    if !std::fs::exists("build").unwrap() || !std::fs::exists("CMakeLists.txt").unwrap() {
+        println!("No project structure found to clean");
+        exit(-1);
+    }
+
+    std::fs::remove_dir_all("build").expect("Something went wrong when deleting build directory");
 }
 
 pub fn run(quiet: &bool) {
