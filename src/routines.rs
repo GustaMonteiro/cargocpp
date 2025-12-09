@@ -3,7 +3,16 @@ use std::process::exit;
 
 use crate::files::*;
 
+fn check_command(command: &str) {
+    if let Err(e) = std::process::Command::new(command).status() {
+        println!("{e}: {command}");
+        exit(-1);
+    }
+}
+
 fn initialize_git_repo(base_path: &std::path::Path) {
+    check_command("git");
+
     std::process::Command::new("git")
         .arg("init")
         .current_dir(&base_path)
@@ -52,6 +61,8 @@ pub fn build(clean: &bool) {
     if *clean {
         crate::routines::clean();
     }
+
+    check_command("cmake");
 
     if !std::fs::exists("build").unwrap() {
         std::fs::create_dir("build").expect("Error while creating build directory");
