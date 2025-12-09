@@ -1,4 +1,5 @@
 mod argument_parser;
+mod routines;
 
 use clap::Parser;
 
@@ -9,31 +10,19 @@ fn main() {
 
     match &cli.command {
         Commands::New { name, std } => {
-            println!("COMMAND: New");
-            println!("   -> Creating new project called: {} with C++{}", name, std);
+            routines::new(name, std);
         }
         Commands::Build { clean } => {
-            println!("COMMAND: Build");
-            if *clean {
-                println!("   -> Flag --clean set. Cleaning before building...");
-            }
-            println!("   -> Building project...");
+            routines::build(clean);
         }
         Commands::Clean => {
-            println!("COMMAND: Clean");
-            println!("   -> Cleaning...");
+            routines::clean();
         }
         Commands::Run { quiet } => {
-            println!("COMMAND: Run");
-            if *quiet {
-                println!("   -> Running in quiet mode (-q)...");
-            } else {
-                println!("   -> Running project...");
-            }
+            routines::run(quiet);
         }
         Commands::Add { names } => {
-            println!("COMMAND: Add");
-            println!("   -> Packages to be added: {:?}", names);
+            routines::add(names);
         }
     }
 }

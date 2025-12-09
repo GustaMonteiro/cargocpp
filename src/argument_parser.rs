@@ -26,10 +26,10 @@ pub enum Commands {
     New {
         /// New project's name
         name: String,
-    
+
         /// C++ standard to be used (e.g.: 14, 17, 20). Default: 20
         #[arg(
-            long, 
+            long,
             default_value_t = String::from("20"),
             value_parser = parse_std_version
         )]
