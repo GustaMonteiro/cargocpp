@@ -3,6 +3,20 @@ use std::process::exit;
 
 use crate::files::*;
 
+fn initialize_git_repo(base_path: &std::path::Path) {
+    std::process::Command::new("git")
+        .arg("init")
+        .current_dir(&base_path)
+        .status()
+        .expect("Error while creating git repository");
+
+    std::process::Command::new("git")
+        .args(["branch", "-M", "main"])
+        .current_dir(&base_path)
+        .status()
+        .expect("Error while changing git branch name");
+}
+
 pub fn new(name: &String, std: &String) {
     let base_path = PathBuf::from(name);
 
@@ -18,6 +32,8 @@ pub fn new(name: &String, std: &String) {
         println!("Something went wrong during directory creation: {}", e);
         exit(-1);
     }
+
+    initialize_git_repo(&base_path);
 
     std::fs::create_dir(base_path.join("src")).expect("Error while creating src directory");
     std::fs::create_dir(base_path.join("include")).expect("Error while creating include directory");

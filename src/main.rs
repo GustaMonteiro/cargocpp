@@ -1,6 +1,6 @@
 mod argument_parser;
-mod routines;
 mod files;
+mod routines;
 
 use clap::Parser;
 
