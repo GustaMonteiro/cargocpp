@@ -1,5 +1,18 @@
 use clap::{Parser, Subcommand};
 
+const VALID_STD_VERSIONS: [&str; 4] = ["14", "17", "20", "23"];
+
+fn parse_std_version(s: &str) -> Result<String, String> {
+    if VALID_STD_VERSIONS.contains(&s) {
+        Ok(s.to_string())
+    } else {
+        Err(format!(
+            "Invalid C++ Standard: '{s}'. C++ standards are: {}",
+            VALID_STD_VERSIONS.join(", ")
+        ))
+    }
+}
+
 #[derive(Parser, Debug)]
 #[command(author, version, about = "Cargocpp", long_about = None)]
 pub struct Cli {
@@ -13,6 +26,14 @@ pub enum Commands {
     New {
         /// New project's name
         name: String,
+    
+        /// C++ standard to be used (e.g.: 14, 17, 20). Default: 20
+        #[arg(
+            long, 
+            default_value_t = String::from("20"),
+            value_parser = parse_std_version
+        )]
+        std: String,
     },
 
     /// Build the project

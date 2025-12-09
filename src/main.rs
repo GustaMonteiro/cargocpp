@@ -8,9 +8,9 @@ fn main() {
     let cli = Cli::parse();
 
     match &cli.command {
-        Commands::New { name } => {
+        Commands::New { name, std } => {
             println!("COMMAND: New");
-            println!("   -> Creating new project called: {}", name);
+            println!("   -> Creating new project called: {} with C++{}", name, std);
         }
         Commands::Build { clean } => {
             println!("COMMAND: Build");
