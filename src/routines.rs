@@ -4,7 +4,7 @@ use std::process::{Stdio, exit};
 use crate::files::*;
 
 fn check_command(command: &str) {
-    if let Err(e) = std::process::Command::new(command)
+    if let Err(_) = std::process::Command::new(command)
         .stderr(Stdio::null())
         .stdout(Stdio::null())
         .status()
