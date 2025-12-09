@@ -1,0 +1,108 @@
+name: Build Release
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    name: Build ${{ matrix.target }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest
+            target: x86_64-unknown-linux-gnu
+            artifact_name: cargocpp
+            asset_name: cargocpp-linux-x86_64
+          - os: windows-latest
+            target: x86_64-pc-windows-msvc
+            artifact_name: cargocpp.exe
+            asset_name: cargocpp-windows-x86_64.exe
+          - os: macos-latest
+            target: x86_64-apple-darwin
+            artifact_name: cargocpp
+            asset_name: cargocpp-macos-x86_64
+          - os: macos-latest
+            target: aarch64-apple-darwin
+            artifact_name: cargocpp
+            asset_name: cargocpp-macos-aarch64
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          target: ${{ matrix.target }}
+          override: true
+
+      - name: Build release binary
+        run: cargo build --release --target ${{ matrix.target }}
+
+      - name: Rename binary (Unix)
+        if: matrix.os != 'windows-latest'
+        run: |
+          cp target/${{ matrix.target }}/release/${{ matrix.artifact_name }} ${{ matrix.asset_name }}
+
+      - name: Rename binary (Windows)
+        if: matrix.os == 'windows-latest'
+        run: |
+          Copy-Item target\${{ matrix.target }}\release\${{ matrix.artifact_name }} ${{ matrix.asset_name }}
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.asset_name }}
+          path: ${{ matrix.asset_name }}
+          retention-days: 90
+
+  create-release:
+    name: Create Release with Assets
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: Display structure of downloaded files
+        run: ls -R artifacts
+
+      - name: Get commit hash
+        id: commit
+        run: echo "sha_short=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+
+      - name: Create Release
+        id: create_release
+        uses: softprops/action-gh-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: build-${{ steps.commit.outputs.sha_short }}
+          name: Build ${{ steps.commit.outputs.sha_short }}
+          body: |
+            Automated build from commit ${{ github.sha }}
+            
+            ## Downloads
+            - **Linux (x86_64)**: cargocpp-linux-x86_64
+            - **Windows (x86_64)**: cargocpp-windows-x86_64.exe
+            - **macOS (Intel)**: cargocpp-macos-x86_64
+            - **macOS (Apple Silicon)**: cargocpp-macos-aarch64
+          draft: false
+          prerelease: false
+          files: |
+            artifacts/cargocpp-linux-x86_64/cargocpp-linux-x86_64
+            artifacts/cargocpp-windows-x86_64.exe/cargocpp-windows-x86_64.exe
+            artifacts/cargocpp-macos-x86_64/cargocpp-macos-x86_64
+            artifacts/cargocpp-macos-aarch64/cargocpp-macos-aarch64
