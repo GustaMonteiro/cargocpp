@@ -1,10 +1,14 @@
 use std::path::PathBuf;
-use std::process::exit;
+use std::process::{Stdio, exit};
 
 use crate::files::*;
 
 fn check_command(command: &str) {
-    if let Err(e) = std::process::Command::new(command).status() {
+    if let Err(e) = std::process::Command::new(command)
+        .stderr(Stdio::null())
+        .stdout(Stdio::null())
+        .status()
+    {
         println!("{e}: {command}");
         exit(-1);
     }
