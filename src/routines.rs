@@ -9,7 +9,7 @@ fn check_command(command: &str) {
         .stdout(Stdio::null())
         .status()
     {
-        println!("{e}: {command}");
+        println!("Command '{command}' not found");
         exit(-1);
     }
 }
