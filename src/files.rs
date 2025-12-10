@@ -1,6 +1,6 @@
 pub fn create_cmake_file(base_path: &std::path::Path, name: &String, std: &String) {
     let content = format!(
-        r#"cmake_minimum_required(VERSION 3.20)
+        r#"cmake_minimum_required(VERSION 3.23)
 project({} "CXX")
 
 set(CMAKE_CXX_STANDARD {})
