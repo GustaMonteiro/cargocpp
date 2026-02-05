@@ -1,4 +1,5 @@
 mod argument_parser;
+mod cmake_target_file;
 mod files;
 mod routines;
 
@@ -19,7 +20,11 @@ fn main() {
         Commands::Clean => {
             routines::clean();
         }
-        Commands::Run { quiet, release, args } => {
+        Commands::Run {
+            quiet,
+            release,
+            args,
+        } => {
             routines::run(quiet, release, args);
         }
         Commands::Add { names } => {

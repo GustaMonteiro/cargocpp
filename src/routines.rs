@@ -72,15 +72,29 @@ fn build_internal(clean: &bool, quiet: &bool, release: &bool) {
 
     check_command("cmake");
 
-    let stdout = if *quiet { Stdio::null() } else { Stdio::inherit() };
-    let stderr = if *quiet { Stdio::null() } else { Stdio::inherit() };
+    let stdout = if *quiet {
+        Stdio::null()
+    } else {
+        Stdio::inherit()
+    };
+    let stderr = if *quiet {
+        Stdio::null()
+    } else {
+        Stdio::inherit()
+    };
 
     let build_type = if *release { "Release" } else { "Debug" };
 
     if !std::fs::exists("build").unwrap() {
         std::fs::create_dir("build").expect("Error while creating build directory");
         std::process::Command::new("cmake")
-            .args(["-B", "build", "-S", ".", &format!("-DCMAKE_BUILD_TYPE={}", build_type)])
+            .args([
+                "-B",
+                "build",
+                "-S",
+                ".",
+                &format!("-DCMAKE_BUILD_TYPE={}", build_type),
+            ])
             .stdout(stdout)
             .stderr(stderr)
             .status()
@@ -89,8 +103,16 @@ fn build_internal(clean: &bool, quiet: &bool, release: &bool) {
 
     std::process::Command::new("cmake")
         .args(["--build", "build", "--config", build_type])
-        .stdout(if *quiet { Stdio::null() } else { Stdio::inherit() })
-        .stderr(if *quiet { Stdio::null() } else { Stdio::inherit() })
+        .stdout(if *quiet {
+            Stdio::null()
+        } else {
+            Stdio::inherit()
+        })
+        .stderr(if *quiet {
+            Stdio::null()
+        } else {
+            Stdio::inherit()
+        })
         .status()
         .expect("Something went wrong when build cmake project");
 }
@@ -112,9 +134,9 @@ pub fn run(quiet: &bool, release: &bool, args: &Vec<String>) {
 
     build_internal(&false, quiet, release);
 
-    let cmake_content = std::fs::read_to_string("CMakeLists.txt")
-        .expect("Failed to read CMakeLists.txt");
-    
+    let cmake_content =
+        std::fs::read_to_string("CMakeLists.txt").expect("Failed to read CMakeLists.txt");
+
     let project_name = cmake_content
         .lines()
         .find(|line| line.trim().starts_with("project("))
@@ -134,10 +156,13 @@ pub fn run(quiet: &bool, release: &bool, args: &Vec<String>) {
     let possible_paths = vec![
         PathBuf::from("build").join(project_name), // Unix-like (Makefiles)
         PathBuf::from("build").join(build_type).join(project_name), // Multi-config (MSVC, Ninja Multi-Config)
-        PathBuf::from("build").join(build_type).join(format!("{}.exe", project_name)), // Windows MSVC
+        PathBuf::from("build")
+            .join(build_type)
+            .join(format!("{}.exe", project_name)), // Windows MSVC
     ];
 
-    let executable_path = possible_paths.into_iter()
+    let executable_path = possible_paths
+        .into_iter()
         .find(|path| std::fs::exists(path).unwrap_or(false))
         .unwrap_or_else(|| {
             println!("Executable not found. Checked paths:");
